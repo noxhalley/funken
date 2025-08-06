@@ -18,8 +18,8 @@ type (
 	}
 
 	app struct {
-		Port     string `env:"APP_PORT"     env-required:"true"`
-		LogLevel string `env:"LOG_LEVEL"    env-default:"DEBUG"`
+		Port     string `env:"APP_PORT"  env-required:"true"`
+		LogLevel string `env:"LOG_LEVEL" env-default:"DEBUG"`
 	}
 
 	mongo struct {
@@ -32,8 +32,8 @@ type (
 		PoolSize     int    `env:"MONGO_POOL_SIZE"     env-default:"10"`
 		MaxIdleTime  int    `env:"MONGO_MAX_IDLE_TIME" env-default:"300000"`
 		ConnAttempts int    `env:"MONGO_CONN_ATTEMPTS" env-default:"3"`
-		Username     string `env:"MONGO_USERNAME" env-required:"true"`
-		Password     string `env:"MONGO_PASSWORD" env-required:"true"`
+		Username     string `env:"MONGO_USERNAME"      env-required:"true"`
+		Password     string `env:"MONGO_PASSWORD"      env-required:"true"`
 	}
 )
 
