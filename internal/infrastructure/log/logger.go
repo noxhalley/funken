@@ -1,33 +1,57 @@
 package log
 
 import (
-	"os"
-
-	"github.com/noxhalley/funken/config"
-	"github.com/sirupsen/logrus"
+	"context"
+	"log/slog"
+	"sync"
 )
 
-func NewLogger(cfg *config.Config) *logrus.Logger {
-	logger := logrus.New()
-	logger.SetOutput(os.Stdout)
-	logger.SetFormatter(&logrus.JSONFormatter{})
+type Logger struct {
+	logger *slog.Logger
+}
 
-	switch cfg.App.LogLevel {
-	case "FATAL":
-		logger.SetLevel(logrus.FatalLevel)
-	case "ERROR":
-		logger.SetLevel(logrus.ErrorLevel)
-	case "WARN":
-		logger.SetLevel(logrus.WarnLevel)
-	case "INFO":
-		logger.SetLevel(logrus.InfoLevel)
-	case "DEBUG":
-		logger.SetLevel(logrus.DebugLevel)
-	case "TRACE":
-		logger.SetLevel(logrus.TraceLevel)
-	default:
-		logger.SetLevel(logrus.InfoLevel)
+func With(args ...any) *Logger {
+	return &Logger{
+		logger: slog.With(args...),
 	}
+}
 
-	return logger
+func (l *Logger) Info(ctx context.Context, msg string, args ...any) {
+	l.logger.InfoContext(ctx, msg, args...)
+}
+
+func (l *Logger) Debug(ctx context.Context, msg string, args ...any) {
+	l.logger.DebugContext(ctx, msg, args...)
+}
+
+func (l *Logger) Warn(ctx context.Context, msg string, args ...any) {
+	l.logger.WarnContext(ctx, msg, args...)
+}
+
+func (l *Logger) Error(ctx context.Context, msg string, args ...any) {
+	l.logger.ErrorContext(ctx, msg, args...)
+}
+
+func (l *Logger) With(args ...any) *Logger {
+	return &Logger{
+		logger: l.logger.With(args...),
+	}
+}
+
+func (l *Logger) WithContext(ctx context.Context) *Logger {
+	var newLogger *Logger = l.With()
+	if v, ok := ctx.Value(logMapCtxKey).(*sync.Map); ok {
+		v.Range(func(key, value any) bool {
+			if key, ok := key.(string); ok {
+				newLogger = newLogger.With(key, ctx.Value(key))
+			}
+			return true
+		})
+	}
+	for _, key := range keys {
+		if ctx.Value(key) != nil {
+			newLogger = newLogger.With(key, ctx.Value(key))
+		}
+	}
+	return newLogger
 }
