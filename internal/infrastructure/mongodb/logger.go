@@ -1,28 +1,31 @@
 package mongodb
 
 import (
-	"github.com/sirupsen/logrus"
+	"context"
+
+	"github.com/noxhalley/funken/internal/infrastructure/log"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type mongoLogger struct {
-	logger *logrus.Entry
+	logger *log.Logger
 }
 
-func newMongoLogger(logger *logrus.Logger) options.LogSink {
+func newMongoLogger() options.LogSink {
 	return &mongoLogger{
-		logger: logger.WithField("service", "mongodb"),
+		logger: log.With("service", "mongodb"),
 	}
 }
 
 func (l *mongoLogger) Info(level int, msg string, args ...interface{}) {
 	if options.LogLevel(level+1) == options.LogLevelDebug {
-		l.logger.Debug(args...)
+		l.logger.Debug(context.Background(), msg, args...)
 	} else {
-		l.logger.Info(args...)
+		l.logger.Info(context.Background(), msg, args...)
 	}
 }
 
 func (l *mongoLogger) Error(err error, msg string, args ...interface{}) {
-	l.logger.Errorf(err.Error(), args...)
+	ctx := log.AddLogValToCtx(context.Background(), "error", err.Error())
+	l.logger.Error(ctx, msg, args...)
 }

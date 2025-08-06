@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/noxhalley/funken/config"
-	"github.com/sirupsen/logrus"
+	"github.com/noxhalley/funken/internal/infrastructure/log"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
@@ -15,7 +15,7 @@ import (
 
 type MongoDB struct {
 	DBName string
-	logger *logrus.Entry
+	logger *log.Logger
 	cli    *mongo.Client
 }
 
@@ -24,9 +24,9 @@ var (
 	once          sync.Once
 )
 
-func NewOrGetSingleton(ctx context.Context, cfg *config.Config, logger *logrus.Logger) *MongoDB {
+func NewOrGetSingleton(ctx context.Context, cfg *config.Config) *MongoDB {
 	once.Do(func() {
-		m, err := initMongo(ctx, cfg, logger)
+		m, err := initMongo(ctx, cfg)
 		if err != nil {
 			panic(err)
 		}
@@ -35,8 +35,8 @@ func NewOrGetSingleton(ctx context.Context, cfg *config.Config, logger *logrus.L
 	return mongoInstance
 }
 
-func initMongo(ctx context.Context, cfg *config.Config, logger *logrus.Logger) (*MongoDB, error) {
-	mongoLogger := newMongoLogger(logger)
+func initMongo(ctx context.Context, cfg *config.Config) (*MongoDB, error) {
+	mongoLogger := newMongoLogger()
 	loggerOpts := options.
 		Logger().
 		SetSink(mongoLogger).
@@ -64,7 +64,7 @@ func initMongo(ctx context.Context, cfg *config.Config, logger *logrus.Logger) (
 
 	return &MongoDB{
 		DBName: cfg.Mongo.Database,
-		logger: logger.WithField("service", "mongodb"),
+		logger: log.With("service", "mongodb"),
 		cli:    client,
 	}, nil
 }
@@ -74,7 +74,8 @@ func (m *MongoDB) Ping(ctx context.Context) error {
 }
 
 func (m *MongoDB) Close(ctx context.Context) {
+	m.logger.Info(ctx, "Closing MongoDB")
 	if err := m.cli.Disconnect(ctx); err != nil {
-		m.logger.Errorf("Error while closing MongoDB: %v", err)
+		m.logger.Error(ctx, "Error while closing MongoDB", "error", err.Error())
 	}
 }
