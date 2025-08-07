@@ -1,8 +1,6 @@
 package model
 
-import (
-	"go.mongodb.org/mongo-driver/bson"
-)
+import "go.mongodb.org/mongo-driver/bson"
 
 type GroupStatus int8
 

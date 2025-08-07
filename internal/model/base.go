@@ -1,8 +1,6 @@
 package model
 
-import (
-	"time"
-)
+import "time"
 
 type BaseModel struct {
 	ID        string    `bson:"id,omitempty"        json:"id"`
