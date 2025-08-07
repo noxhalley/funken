@@ -15,8 +15,8 @@ import (
 
 type MongoDB struct {
 	DBName string
+	Client *mongo.Client
 	logger *log.Logger
-	cli    *mongo.Client
 }
 
 var (
@@ -24,9 +24,9 @@ var (
 	once          sync.Once
 )
 
-func NewOrGetSingleton(ctx context.Context, cfg *config.Config) *MongoDB {
+func NewOrGetSingleton(cfg *config.Config) *MongoDB {
 	once.Do(func() {
-		m, err := initMongo(ctx, cfg)
+		m, err := initMongo(cfg)
 		if err != nil {
 			panic(err)
 		}
@@ -35,7 +35,7 @@ func NewOrGetSingleton(ctx context.Context, cfg *config.Config) *MongoDB {
 	return mongoInstance
 }
 
-func initMongo(ctx context.Context, cfg *config.Config) (*MongoDB, error) {
+func initMongo(cfg *config.Config) (*MongoDB, error) {
 	mongoLogger := newMongoLogger()
 	loggerOpts := options.
 		Logger().
@@ -65,17 +65,17 @@ func initMongo(ctx context.Context, cfg *config.Config) (*MongoDB, error) {
 	return &MongoDB{
 		DBName: cfg.Mongo.Database,
 		logger: log.With("service", "mongodb"),
-		cli:    client,
+		Client: client,
 	}, nil
 }
 
 func (m *MongoDB) Ping(ctx context.Context) error {
-	return m.cli.Ping(ctx, readpref.PrimaryPreferred())
+	return m.Client.Ping(ctx, readpref.PrimaryPreferred())
 }
 
 func (m *MongoDB) Close(ctx context.Context) {
 	m.logger.Info(ctx, "Closing MongoDB")
-	if err := m.cli.Disconnect(ctx); err != nil {
+	if err := m.Client.Disconnect(ctx); err != nil {
 		m.logger.Error(ctx, "Error while closing MongoDB", "error", err.Error())
 	}
 }
