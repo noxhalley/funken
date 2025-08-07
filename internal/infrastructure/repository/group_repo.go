@@ -18,7 +18,8 @@ var (
 
 type GroupRepository interface {
 	FindOneByConditions(ctx context.Context, filter interface{}, opts *options.FindOneOptionsBuilder) (*model.Group, error)
-	Create(ctx context.Context, group model.Group) (*model.Group, error)
+	FindByConditions(ctx context.Context, filter interface{}, opts *options.FindOptionsBuilder) ([]model.Group, error)
+	Create(ctx context.Context, group model.Group) error
 	UpdateByID(ctx context.Context, ID string, operation interface{}) (*model.Group, error)
 	CheckExist(ctx context.Context, ID string) (bool, error)
 }
@@ -53,9 +54,38 @@ func (g *groupRepo) FindOneByConditions(
 	return &group, nil
 }
 
+// FindByConditions implements GroupRepository.
+func (g *groupRepo) FindByConditions(
+	ctx context.Context,
+	filter interface{},
+	opts *options.FindOptionsBuilder,
+) ([]model.Group, error) {
+	coll := g.db.Client.
+		Database(g.db.DBName).
+		Collection(model.GroupCollectionName)
+
+	groups := []model.Group{}
+	cursor, err := coll.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	err = cursor.All(ctx, &groups)
+	return groups, err
+}
+
 // Create implements GroupRepository.
-func (g *groupRepo) Create(ctx context.Context, group model.Group) (*model.Group, error) {
-	panic("unimplemented")
+func (g *groupRepo) Create(
+	ctx context.Context,
+	group model.Group,
+) error {
+	coll := g.db.Client.
+		Database(g.db.DBName).
+		Collection(model.GroupCollectionName)
+
+	_, err := coll.InsertOne(ctx, group)
+	return err
 }
 
 // UpdateByID implements GroupRepository.
