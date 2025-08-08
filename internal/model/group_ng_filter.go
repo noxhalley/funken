@@ -1,5 +1,7 @@
 package model
 
+const GroupNGFilterCollectionName = "group_ng_filters"
+
 type GroupNGFilter struct {
 	BaseModel `bson:",inline"            json:",inline"`
 	GroupID   string `bson:"group_id,omitempty" json:"groupId"`

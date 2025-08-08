@@ -7,6 +7,8 @@ type MsgSortDirection string
 const (
 	MsgSortAsc  MsgSortDirection = "asc"
 	MsgSortDesc MsgSortDirection = "desc"
+
+	MessageCollectionName = "messages"
 )
 
 type Message struct {

@@ -17,22 +17,50 @@ var (
 )
 
 type GroupRepository interface {
-	FindOneByConditions(ctx context.Context, filter interface{}, opts *options.FindOneOptionsBuilder) (*model.Group, error)
-	FindByConditions(ctx context.Context, filter interface{}, opts *options.FindOptionsBuilder) ([]model.Group, error)
-	Create(ctx context.Context, group model.Group) error
-	UpdateByID(ctx context.Context, ID string, operation interface{}) (*model.Group, error)
+	FindOneByConditions(
+		ctx context.Context,
+		filter interface{},
+		opts *options.FindOneOptionsBuilder,
+	) (*model.Group, error)
+
+	FindByConditions(
+		ctx context.Context,
+		filter interface{},
+		opts *options.FindOptionsBuilder,
+	) ([]model.Group, error)
+
+	Create(
+		ctx context.Context,
+		group model.Group,
+	) error
+
+	UpdateByID(
+		ctx context.Context,
+		ID string,
+		operation interface{},
+	) (*model.Group, error)
+
+	DeleteByID(
+		ctx context.Context,
+		ID string,
+	) error
+
 	CheckExist(ctx context.Context, ID string) (bool, error)
 }
 
 type groupRepo struct {
 	logger *log.Logger
-	db     *mongodb.MongoDB
+	coll   *mongo.Collection
 }
 
 func NewGroupRepository(db *mongodb.MongoDB) GroupRepository {
+	coll := db.Client.
+		Database(db.DBName).
+		Collection(model.GroupCollectionName)
+
 	return &groupRepo{
 		logger: log.With("repository", "group_repository"),
-		db:     db,
+		coll:   coll,
 	}
 }
 
@@ -43,14 +71,9 @@ func (g *groupRepo) FindOneByConditions(
 	opts *options.FindOneOptionsBuilder,
 ) (*model.Group, error) {
 	group := model.Group{}
-	coll := g.db.Client.
-		Database(g.db.DBName).
-		Collection(model.GroupCollectionName)
-
-	if err := coll.FindOne(ctx, filter, opts).Decode(&group); err != nil {
+	if err := g.coll.FindOne(ctx, filter, opts).Decode(&group); err != nil {
 		return nil, err
 	}
-
 	return &group, nil
 }
 
@@ -60,17 +83,13 @@ func (g *groupRepo) FindByConditions(
 	filter interface{},
 	opts *options.FindOptionsBuilder,
 ) ([]model.Group, error) {
-	coll := g.db.Client.
-		Database(g.db.DBName).
-		Collection(model.GroupCollectionName)
-
-	groups := []model.Group{}
-	cursor, err := coll.Find(ctx, filter, opts)
+	cursor, err := g.coll.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
+	var groups []model.Group
 	err = cursor.All(ctx, &groups)
 	return groups, err
 }
@@ -80,11 +99,7 @@ func (g *groupRepo) Create(
 	ctx context.Context,
 	group model.Group,
 ) error {
-	coll := g.db.Client.
-		Database(g.db.DBName).
-		Collection(model.GroupCollectionName)
-
-	_, err := coll.InsertOne(ctx, group)
+	_, err := g.coll.InsertOne(ctx, group)
 	return err
 }
 
@@ -95,30 +110,30 @@ func (g *groupRepo) UpdateByID(
 	operation interface{},
 ) (*model.Group, error) {
 	filter := bson.M{"id": ID}
-	coll := g.db.Client.
-		Database(g.db.DBName).
-		Collection(model.GroupCollectionName)
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 
 	updatedDoc := model.Group{}
-	if err := coll.FindOneAndUpdate(ctx, filter, operation, opts).Decode(&updatedDoc); err != nil {
+	if err := g.coll.FindOneAndUpdate(ctx, filter, operation, opts).Decode(&updatedDoc); err != nil {
 		return nil, err
 	}
 	return &updatedDoc, nil
 }
 
+// DeleteByID implements GroupRepository.
+func (g *groupRepo) DeleteByID(ctx context.Context, ID string) error {
+	filter := bson.M{"id": ID}
+	_, err := g.coll.DeleteOne(ctx, filter)
+	return err
+}
+
 // CheckExist implements GroupRepository.
 func (g *groupRepo) CheckExist(ctx context.Context, ID string) (bool, error) {
-	coll := g.db.Client.
-		Database(g.db.DBName).
-		Collection(model.GroupCollectionName)
-
 	filter := bson.M{"id": ID}
 	opts := options.
 		FindOne().
 		SetProjection(bson.M{"id": 1})
 
-	err := coll.FindOne(ctx, filter, opts).Err()
+	err := g.coll.FindOne(ctx, filter, opts).Err()
 	if err == mongo.ErrNoDocuments {
 		return false, nil
 	}

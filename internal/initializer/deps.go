@@ -16,7 +16,8 @@ func Build() fx.Option {
 
 		// repositories
 		fx.Provide(repository.NewGroupRepository),
-        fx.Provide(repository.NewMemberGroupRepository),
+		fx.Provide(repository.NewMemberGroupRepository),
+		fx.Provide(repository.NewGroupNGFilterRepository),
 		fx.Provide(repository.NewMessageRepository),
 	)
 }

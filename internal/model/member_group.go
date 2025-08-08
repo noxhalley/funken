@@ -1,6 +1,6 @@
 package model
 
-const MemberGroupCollectionName = "membergroups"
+const MemberGroupCollectionName = "member_groups"
 
 type MemberGroup struct {
 	BaseModel `bson:",inline"       json:",inline"`

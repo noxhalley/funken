@@ -9,24 +9,32 @@ import (
 	"github.com/noxhalley/funken/internal/infrastructure/mongodb"
 	"github.com/noxhalley/funken/internal/model"
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type MemberGroupRepository interface {
 	FindMemberIDsByGroupID(ctx context.Context, groupID string) ([]string, error)
+
 	CountMembersByGroupID(ctx context.Context, groupID string) (int64, error)
+
 	AddMembers(ctx context.Context, groupID string, memberIDs []string) error
+
 	RemoveMembers(ctx context.Context, groupID string, memberIDs []string) error
 }
 
 type memberGroupRepo struct {
 	logger *log.Logger
-	db     *mongodb.MongoDB
+	coll   *mongo.Collection
 }
 
 func NewMemberGroupRepository(db *mongodb.MongoDB) MemberGroupRepository {
+	coll := db.Client.
+		Database(db.DBName).
+		Collection(model.MemberGroupCollectionName)
+
 	return &memberGroupRepo{
 		logger: log.With("repository", "member_group_repo"),
-		db:     db,
+		coll:   coll,
 	}
 }
 
@@ -35,12 +43,8 @@ func (m *memberGroupRepo) CountMembersByGroupID(
 	ctx context.Context,
 	groupID string,
 ) (int64, error) {
-	coll := m.db.Client.
-		Database(m.db.DBName).
-		Collection(model.MemberGroupCollectionName)
-
 	filter := bson.D{{Key: "group_id", Value: groupID}}
-	return coll.CountDocuments(ctx, filter)
+	return m.coll.CountDocuments(ctx, filter)
 }
 
 // FindMemberIDsByGroupID implements GroupRepository.
@@ -49,11 +53,8 @@ func (m *memberGroupRepo) FindMemberIDsByGroupID(
 	groupID string,
 ) ([]string, error) {
 	filter := bson.M{"group_id": groupID}
-	coll := m.db.Client.
-		Database(m.db.DBName).
-		Collection(model.MemberGroupCollectionName)
 
-	cursor, err := coll.Find(ctx, filter)
+	cursor, err := m.coll.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -77,10 +78,6 @@ func (m *memberGroupRepo) AddMembers(
 	groupID string,
 	memberIDs []string,
 ) error {
-	coll := m.db.Client.
-		Database(m.db.DBName).
-		Collection(model.MemberGroupCollectionName)
-
 	filter := bson.M{
 		"group_id": groupID,
 		"member_id": bson.M{
@@ -88,7 +85,7 @@ func (m *memberGroupRepo) AddMembers(
 		},
 	}
 
-	cursor, err := coll.Find(ctx, filter)
+	cursor, err := m.coll.Find(ctx, filter)
 	if err != nil {
 		return err
 	}
@@ -126,7 +123,7 @@ func (m *memberGroupRepo) AddMembers(
 		return nil
 	}
 
-	_, err = coll.InsertMany(ctx, newMembers)
+	_, err = m.coll.InsertMany(ctx, newMembers)
 	return err
 }
 
@@ -136,10 +133,6 @@ func (m *memberGroupRepo) RemoveMembers(
 	groupID string,
 	memberIDs []string,
 ) error {
-	coll := m.db.Client.
-		Database(m.db.DBName).
-		Collection(model.MemberGroupCollectionName)
-
 	filter := bson.M{
 		"group_id": groupID,
 		"member_id": bson.M{
@@ -147,6 +140,6 @@ func (m *memberGroupRepo) RemoveMembers(
 		},
 	}
 
-	_, err := coll.DeleteMany(ctx, filter)
+	_, err := m.coll.DeleteMany(ctx, filter)
 	return err
 }
