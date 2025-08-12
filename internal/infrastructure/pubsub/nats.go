@@ -12,7 +12,7 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 )
 
-type jetStreamManager struct {
+type JetStreamManager struct {
 	logger *log.Logger
 	js     jetstream.JetStream
 	conn   *nats.Conn
@@ -20,10 +20,10 @@ type jetStreamManager struct {
 
 var (
 	once     sync.Once
-	instance JetStreamManager
+	instance *JetStreamManager
 )
 
-func NewOrGetSingleton(cfg *config.Config) JetStreamManager {
+func NewOrGetSingleton(cfg *config.Config) *JetStreamManager {
 	once.Do(func() {
 		jsm, err := initJetStream(cfg)
 		if err != nil {
@@ -34,7 +34,7 @@ func NewOrGetSingleton(cfg *config.Config) JetStreamManager {
 	return instance
 }
 
-func initJetStream(cfg *config.Config) (JetStreamManager, error) {
+func initJetStream(cfg *config.Config) (*JetStreamManager, error) {
 	logger := log.With("service", "jetstream_manager")
 
 	conn, err := initNATSConn(logger, cfg)
@@ -64,7 +64,7 @@ func initJetStream(cfg *config.Config) (JetStreamManager, error) {
 		return nil, err
 	}
 
-	return &jetStreamManager{
+	return &JetStreamManager{
 		logger: logger,
 		conn:   conn,
 		js:     js,
@@ -92,4 +92,8 @@ func initNATSConn(logger *log.Logger, cfg *config.Config) (*nats.Conn, error) {
 	}
 
 	return nats.Connect(cfg.Nats.Url, opts...)
+}
+
+func (jsm *JetStreamManager) Close() {
+	jsm.conn.Close()
 }

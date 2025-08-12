@@ -8,7 +8,7 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 )
 
-type JetStreamManager interface {
+type Publisher interface {
 	Publish(
 		ctx context.Context,
 		subject string,
@@ -28,11 +28,9 @@ type JetStreamManager interface {
 		<-chan error,
 		error,
 	)
-
-	Close()
 }
 
-func (jsm *jetStreamManager) Publish(
+func (jsm *JetStreamManager) Publish(
 	ctx context.Context,
 	subject string,
 	payload interface{},
@@ -60,7 +58,7 @@ func (jsm *jetStreamManager) Publish(
 	return pa, nil
 }
 
-func (jsm *jetStreamManager) PublishAsync(
+func (jsm *JetStreamManager) PublishAsync(
 	ctx context.Context,
 	subject string,
 	payload interface{},
@@ -91,8 +89,4 @@ func (jsm *jetStreamManager) PublishAsync(
 	}
 
 	return paf.Ok(), paf.Err(), nil
-}
-
-func (jsm *jetStreamManager) Close() {
-	jsm.conn.Close()
 }

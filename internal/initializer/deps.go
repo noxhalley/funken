@@ -34,7 +34,15 @@ func Build() fx.Option {
 		),
 		fx.Invoke(initLog),
 		fx.Provide(mongo),
-		fx.Provide(jetstreamManager),
+		fx.Provide(
+			fx.Annotate(
+				jetstreamManager,
+				fx.As(
+					new(pubsub.Publisher),
+					new(pubsub.StreamManager),
+				),
+			),
+		),
 
 		// repositories
 		fx.Provide(repository.NewGroupRepository),
@@ -59,7 +67,7 @@ func mongo(lc fx.Lifecycle, cfg *config.Config) *mongodb.MongoDB {
 	return mdb
 }
 
-func jetstreamManager(lc fx.Lifecycle, cfg *config.Config) pubsub.JetStreamManager {
+func jetstreamManager(lc fx.Lifecycle, cfg *config.Config) *pubsub.JetStreamManager {
 	jsm := pubsub.NewOrGetSingleton(cfg)
 
 	lc.Append(fx.Hook{
