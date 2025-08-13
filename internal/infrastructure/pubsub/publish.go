@@ -51,7 +51,7 @@ func (jsm *JetStreamManager) Publish(
 
 	pa, err := jsm.js.PublishMsg(ctx, &msg, opts...)
 	if err != nil {
-		jsm.logger.Error(ctx, "Failed to publish message", "error", err)
+		jsm.logger.Error(ctx, "failed to publish message", "error", err)
 		return nil, err
 	}
 

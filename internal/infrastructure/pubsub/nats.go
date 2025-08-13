@@ -39,7 +39,7 @@ func initJetStream(cfg *config.Config) (*JetStreamManager, error) {
 
 	conn, err := initNATSConn(logger, cfg)
 	if err != nil {
-		logger.Error(context.Background(), "Failed to initialize NATS connection", "error", err)
+		logger.Error(context.Background(), "failed to initialize NATS connection", "error", err)
 		return nil, err
 	}
 
@@ -60,7 +60,7 @@ func initJetStream(cfg *config.Config) (*JetStreamManager, error) {
 	js, err := jetstream.NewWithDomain(conn, cfg.JetStream.Domain, opts...)
 	if err != nil {
 		conn.Close()
-		logger.Error(context.Background(), "Failed to create JetStream instance", "error", err)
+		logger.Error(context.Background(), "failed to create JetStream instance", "error", err)
 		return nil, err
 	}
 
@@ -84,10 +84,10 @@ func initNATSConn(logger *log.Logger, cfg *config.Config) (*nats.Conn, error) {
 		nats.PingInterval(time.Duration(cfg.Nats.PingInterval) * time.Minute),
 		nats.MaxPingsOutstanding(cfg.Nats.MaxPingsOut),
 		nats.ClosedHandler(func(c *nats.Conn) {
-			logger.Info(context.Background(), "Closed connection to NATS")
+			logger.Info(context.Background(), "closed connection to NATS")
 		}),
 		nats.DisconnectErrHandler(func(c *nats.Conn, err error) {
-			logger.Warn(context.Background(), "Disconnected from NATS", "error", err)
+			logger.Warn(context.Background(), "disconnected from NATS", "error", err)
 		}),
 	}
 

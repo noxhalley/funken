@@ -39,7 +39,9 @@ func Build() fx.Option {
 				jetstreamManager,
 				fx.As(
 					new(pubsub.Publisher),
+					new(pubsub.Subcriber),
 					new(pubsub.StreamManager),
+					new(pubsub.ConsumerManager),
 				),
 			),
 		),
