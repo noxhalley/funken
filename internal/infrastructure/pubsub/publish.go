@@ -3,9 +3,15 @@ package pubsub
 import (
 	"context"
 	"encoding/json"
+	"errors"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
+)
+
+var (
+	ErrInvalidStream   = errors.New("invalid stream")
+	ErrInvalidConsumer = errors.New("invalid consumer")
 )
 
 type Publisher interface {
@@ -84,7 +90,7 @@ func (jsm *JetStreamManager) PublishAsync(
 
 	paf, err := jsm.js.PublishMsgAsync(&msg, opts...)
 	if err != nil {
-		jsm.logger.Error(ctx, "Failed to publish message async", "error", err)
+		jsm.logger.Error(ctx, "failed to publish message async", "error", err)
 		return nil, nil, err
 	}
 

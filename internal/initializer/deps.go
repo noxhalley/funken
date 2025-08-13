@@ -40,8 +40,9 @@ func Build() fx.Option {
 				fx.As(
 					new(pubsub.Publisher),
 					new(pubsub.Subcriber),
-					new(pubsub.StreamManager),
-					new(pubsub.ConsumerManager),
+					new(pubsub.PubSub),
+					new(pubsub.StreamConsumerManager),
+					new(pubsub.PubSubStreamManager),
 				),
 			),
 		),

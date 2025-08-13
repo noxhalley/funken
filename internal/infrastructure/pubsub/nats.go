@@ -12,6 +12,16 @@ import (
 	"github.com/nats-io/nats.go/jetstream"
 )
 
+type PubSubStreamManager interface {
+	StreamConsumerManager
+	PubSub
+}
+
+type PubSub interface {
+	Publisher
+	Subcriber
+}
+
 type JetStreamManager struct {
 	logger *log.Logger
 	js     jetstream.JetStream
