@@ -16,13 +16,13 @@ import (
 
 type initParams struct {
 	fx.In
-	writer io.Writer
-	cfg    *config.Config
-	keys   []string
+	Writer io.Writer
+	Cfg    *config.Config
+	Keys   []string
 }
 
 func initLog(p initParams) {
-	log.Initialize(p.writer, p.cfg, p.keys)
+	log.Initialize(p.Writer, p.Cfg, p.Keys)
 }
 
 func Build() fx.Option {

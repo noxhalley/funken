@@ -25,7 +25,7 @@ type (
 	}
 
 	mongo struct {
-		Hostname     string `env:"MONGO_HOST"          env-default:"localhost"`
+		Hostname     string `env:"MONGO_HOST"          env-required:"true"`
 		Port         string `env:"MONGO_PORT"          env-default:"27017"`
 		Database     string `env:"MONGO_DATABASE"      env-required:"true"`
 		AuthSource   string `env:"MONGO_AUTH_DB"       env-required:"true"`
