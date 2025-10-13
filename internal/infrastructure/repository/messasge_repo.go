@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 
-	"github.com/noxhalley/funken/internal/infrastructure/log"
 	"github.com/noxhalley/funken/internal/infrastructure/mongodb"
 	"github.com/noxhalley/funken/internal/model"
+	"github.com/noxhalley/k2log"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -48,7 +48,7 @@ type MessageRepository interface {
 }
 
 type messageRepo struct {
-	logger *log.Logger
+	logger *k2log.Logger
 	coll   *mongo.Collection
 }
 
@@ -58,7 +58,7 @@ func NewMessageRepository(db *mongodb.MongoDB) MessageRepository {
 		Collection(model.MessageCollectionName)
 
 	return &messageRepo{
-		logger: log.With("repository", "message_repository"),
+		logger: k2log.With("repository", "message_repository"),
 		coll:   coll,
 	}
 }

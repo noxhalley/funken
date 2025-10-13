@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/noxhalley/funken/config"
-	"github.com/noxhalley/funken/internal/infrastructure/log"
+	"github.com/noxhalley/k2log"
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
@@ -23,7 +23,7 @@ type PubSub interface {
 }
 
 type JetStreamManager struct {
-	logger *log.Logger
+	logger *k2log.Logger
 	js     jetstream.JetStream
 	conn   *nats.Conn
 }
@@ -45,7 +45,7 @@ func NewOrGetSingleton(cfg *config.Config) *JetStreamManager {
 }
 
 func initJetStream(cfg *config.Config) (*JetStreamManager, error) {
-	logger := log.With("service", "jetstream_manager")
+	logger := k2log.With("service", "jetstream_manager")
 
 	conn, err := initNATSConn(logger, cfg)
 	if err != nil {
@@ -81,7 +81,7 @@ func initJetStream(cfg *config.Config) (*JetStreamManager, error) {
 	}, nil
 }
 
-func initNATSConn(logger *log.Logger, cfg *config.Config) (*nats.Conn, error) {
+func initNATSConn(logger *k2log.Logger, cfg *config.Config) (*nats.Conn, error) {
 	opts := []nats.Option{
 		nats.Name(cfg.Nats.Name),
 		nats.MaxReconnects(cfg.Nats.MaxReconnect),

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/noxhalley/funken/config"
-	"github.com/noxhalley/funken/internal/infrastructure/log"
+	"github.com/noxhalley/k2log"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -17,7 +17,7 @@ import (
 type MongoDB struct {
 	DBName string
 	Client *mongo.Client
-	logger *log.Logger
+	logger *k2log.Logger
 }
 
 var (
@@ -65,7 +65,7 @@ func initMongo(cfg *config.Config) (*MongoDB, error) {
 
 	return &MongoDB{
 		DBName: cfg.Mongo.Database,
-		logger: log.With("service", "mongodb"),
+		logger: k2log.With("service", "mongodb"),
 		Client: client,
 	}, nil
 }

@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/noxhalley/funken/internal/infrastructure/log"
 	"github.com/noxhalley/funken/internal/infrastructure/mongodb"
 	"github.com/noxhalley/funken/internal/model"
+	"github.com/noxhalley/k2log"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -49,7 +49,7 @@ type GroupRepository interface {
 }
 
 type groupRepo struct {
-	logger *log.Logger
+	logger *k2log.Logger
 	coll   *mongo.Collection
 }
 
@@ -59,7 +59,7 @@ func NewGroupRepository(db *mongodb.MongoDB) GroupRepository {
 		Collection(model.GroupCollectionName)
 
 	return &groupRepo{
-		logger: log.With("repository", "group_repository"),
+		logger: k2log.With("repository", "group_repository"),
 		coll:   coll,
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go/jetstream"
-	"github.com/noxhalley/funken/internal/pkg/utils"
+	"github.com/noxhalley/funken/pkg/utils"
 )
 
 type Subcriber interface {

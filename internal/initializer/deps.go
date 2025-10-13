@@ -6,10 +6,10 @@ import (
 	"os"
 
 	"github.com/noxhalley/funken/config"
-	"github.com/noxhalley/funken/internal/infrastructure/log"
 	"github.com/noxhalley/funken/internal/infrastructure/mongodb"
 	"github.com/noxhalley/funken/internal/infrastructure/pubsub"
 	"github.com/noxhalley/funken/internal/infrastructure/repository"
+	"github.com/noxhalley/k2log"
 
 	"go.uber.org/fx"
 )
@@ -22,7 +22,7 @@ type initParams struct {
 }
 
 func initLog(p initParams) {
-	log.Initialize(p.Writer, p.Cfg, p.Keys)
+	k2log.Initialize(p.Writer, p.Cfg.App.LogLevel, p.Keys)
 }
 
 func Build() fx.Option {

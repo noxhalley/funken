@@ -3,17 +3,17 @@ package mongodb
 import (
 	"context"
 
-	"github.com/noxhalley/funken/internal/infrastructure/log"
+	"github.com/noxhalley/k2log"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type mongoLogger struct {
-	logger *log.Logger
+	logger *k2log.Logger
 }
 
 func newMongoLogger() options.LogSink {
 	return &mongoLogger{
-		logger: log.With("service", "mongodb"),
+		logger: k2log.With("service", "mongodb"),
 	}
 }
 
@@ -26,6 +26,6 @@ func (l *mongoLogger) Info(level int, msg string, args ...interface{}) {
 }
 
 func (l *mongoLogger) Error(err error, msg string, args ...interface{}) {
-	ctx := log.AddLogValToCtx(context.Background(), "error", err.Error())
+	ctx := k2log.AddLogValToCtx(context.Background(), "error", err.Error())
 	l.logger.Error(ctx, msg, args...)
 }

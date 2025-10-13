@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/noxhalley/funken/internal/infrastructure/log"
 	"github.com/noxhalley/funken/internal/infrastructure/mongodb"
 	"github.com/noxhalley/funken/internal/model"
+	"github.com/noxhalley/k2log"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -23,7 +23,7 @@ type MemberGroupRepository interface {
 }
 
 type memberGroupRepo struct {
-	logger *log.Logger
+	logger *k2log.Logger
 	coll   *mongo.Collection
 }
 
@@ -33,7 +33,7 @@ func NewMemberGroupRepository(db *mongodb.MongoDB) MemberGroupRepository {
 		Collection(model.MemberGroupCollectionName)
 
 	return &memberGroupRepo{
-		logger: log.With("repository", "member_group_repo"),
+		logger: k2log.With("repository", "member_group_repo"),
 		coll:   coll,
 	}
 }

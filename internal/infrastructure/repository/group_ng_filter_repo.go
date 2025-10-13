@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 
-	"github.com/noxhalley/funken/internal/infrastructure/log"
 	"github.com/noxhalley/funken/internal/infrastructure/mongodb"
 	"github.com/noxhalley/funken/internal/model"
+	"github.com/noxhalley/k2log"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -52,7 +52,7 @@ type GroupNGFilterRepository interface {
 }
 
 type groupNGFilterRepo struct {
-	logger *log.Logger
+	logger *k2log.Logger
 	coll   *mongo.Collection
 }
 
@@ -62,7 +62,7 @@ func NewGroupNGFilterRepository(db *mongodb.MongoDB) GroupNGFilterRepository {
 		Collection(model.GroupNGFilterCollectionName)
 
 	return &groupNGFilterRepo{
-		logger: log.With("repository", "group_ng_filter_repository"),
+		logger: k2log.With("repository", "group_ng_filter_repository"),
 		coll:   coll,
 	}
 }

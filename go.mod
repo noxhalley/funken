@@ -1,15 +1,18 @@
 module github.com/noxhalley/funken
 
-go 1.24.4
+go 1.25.1
 
 require (
 	github.com/google/uuid v1.6.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/nats-io/nats.go v1.44.0
+	github.com/noxhalley/k2log v0.0.0
 	go.mongodb.org/mongo-driver v1.17.4
 	go.mongodb.org/mongo-driver/v2 v2.2.2
 	go.uber.org/fx v1.24.0
 )
+
+replace github.com/noxhalley/k2log => ../k2go-log
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
